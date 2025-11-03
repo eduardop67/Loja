@@ -11,7 +11,10 @@ public class Principal {
 	static ArrayList<Produto>loja = new ArrayList<>();
 	static int nota50 = 5;
 	static int nota20 = 5;
-	static int nota10 = 5;
+	static int nota10 = 0;
+	static int antiga50=nota50;
+	static int antiga20=nota20;
+	static int antiga10=nota10;
 	static int saldo = ((nota50*50)+(nota20*20)+(nota10*10));
 	
 	public static void main(String[] args) {
@@ -99,8 +102,14 @@ public class Principal {
 		}
 		System.out.println("voce devera pagar: "+loja.get(escolha-1).getPreco()*quantidade);
 		int dado = pedirDinheiro(loja.get(escolha-1).getPreco()*quantidade);
-		calcularTroco(dado-(loja.get(escolha-1).getPreco()*quantidade));
-		loja.get(escolha-1).setEstoque(loja.get(escolha-1).getEstoque()-quantidade);
+		boolean verificacao = calcularTroco(dado-(loja.get(escolha-1).getPreco()*quantidade));
+		if (verificacao==true) {
+			loja.get(escolha-1).setEstoque(loja.get(escolha-1).getEstoque()-quantidade);
+			atualizarAntiga();
+		}
+		if (verificacao==false) {
+			removerNotas();
+		}
 		if (loja.get(escolha-1).getEstoque()==0) {
 			loja.remove(escolha-1);
 		}
@@ -121,33 +130,56 @@ public class Principal {
 		nota10+=n1;
 		return ((n5*50)+(n2*20)+(n1*10));
 	}
-	public static void calcularTroco(double valor) {
-		saldo = ((nota50*50)+(nota20*20)+(nota10*10));
+	public static boolean calcularTroco(double valor) {
+		double troco = valor;
 		if(valor>saldo) {
 			System.out.println("infelizmente nao temos troco suficiente :( ");
-			return;
+			return false;
 		}
-		double troco = valor;
+		if ((valor/50>=1) && (nota50==0)) {
+			System.out.println("infelizmente nao temos troco suficiente :( ");
+			return false;
+		}
 		int n5 = (int) (valor/50);
 		if(n5>nota50) {
 			n5=n5-(n5-nota50);
 		}
-		nota50-=n5;
 		valor=valor-(n5*50);
+		if ((valor/20>=1) && (nota20==0)) {
+			System.out.println("infelizmente nao temos troco suficiente :( ");
+			return false;
+		}	
 		int n2 = (int) (valor/20);
 		if(n2>nota20) {
 			n2=n2-(n2-nota20);
 		}
-		nota20-=n2;
 		valor=valor-(n2*20);
+		if ((valor/10>=1) && (nota10==0)) {
+			System.out.println("infelizmente nao temos troco suficiente :( ");
+			return false;
+		}
 		int n1 = (int) (valor/10);
 		if(n1>nota10) {
 			n1=n1-(n1-nota10);
 		}
+		saldo = ((nota50*50)+(nota20*20)+(nota10*10));
+		nota50-=n5;
+		nota20-=n2;
 		nota10-=n1;
 		System.out.printf("serao usadas: \n %d notas de 50 \n %d notas de 20 \n %d notas de 10 \n",n5,n2,n1);
 		System.out.println("o total do troco vale: "+troco);
 		saldo-=troco;
+		return true;
+	}
+	public static void atualizarAntiga() {
+		antiga50=nota50;
+		antiga20=nota20;
+		antiga10=nota10;
+	}
+	public static void removerNotas() {
+		nota50=antiga50;
+		nota20=antiga20;
+		nota10=antiga10;
 	}
 	public static void exibirCaixa() {
 		System.out.printf("o saldo: %d \n notas de 50: %d \n notas de 20: %d \n notas de 10: %d \n",saldo,nota50,nota20,nota10);
